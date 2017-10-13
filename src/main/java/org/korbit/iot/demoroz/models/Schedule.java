@@ -22,7 +22,10 @@ public class Schedule {
     private LocalTime beginTime;
     @Column
     private LocalTime endTime;
+    @Column
+    private Boolean active;
     public Schedule() {
+        active = true;
     }
 
 
