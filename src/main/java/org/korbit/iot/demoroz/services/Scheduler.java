@@ -20,14 +20,13 @@ public class Scheduler {
     @Scheduled(fixedDelay = 50)
     void doIt() {
         LocalTime time = LocalTime.now();
-       scheduleService.getSchedulesForScheduler(time).forEach( s -> {
+        scheduleService.getSchedulesForScheduler().forEach( s -> {
            Device d = s.getDevice();
            if (!d.getPowState()&& time.isAfter(s.getBeginTime())&&time.isBefore(s.getEndTime())) {
                deviceService.switchPower(d.getUuid(),true);
            } else if (d.getPowState()&& (time.isBefore(s.getBeginTime())||(time.isAfter(s.getEndTime())))) {
                deviceService.switchPower(d.getUuid(),false);
-           }
-       }
+           } }
        );
     }
 }

@@ -1,12 +1,14 @@
 package org.korbit.iot.demoroz.controllers;
 
 import org.apache.log4j.Logger;
+import org.korbit.iot.demoroz.dto.ChangePasswordDto;
 import org.korbit.iot.demoroz.dto.UserDto;
 import org.korbit.iot.demoroz.dto.UserProfileDto;
 import org.korbit.iot.demoroz.dto.UserRegisterDto;
 import org.korbit.iot.demoroz.exceptions.AlreadyExistException;
 import org.korbit.iot.demoroz.exceptions.DeviceNotFoundException;
 import org.korbit.iot.demoroz.exceptions.UserNotFoundException;
+import org.korbit.iot.demoroz.exceptions.WrongPasswordException;
 import org.korbit.iot.demoroz.models.User;
 import org.korbit.iot.demoroz.secure.TokenUtils;
 import org.korbit.iot.demoroz.services.UserService;
@@ -30,14 +32,13 @@ public class TestController {
     private BCryptPasswordEncoder bCryptPasswordEncoder;
     private  AuthenticationManager authenticationManager;
     private TokenUtils tokenUtils;
-    private UserDetailsService userDetailsService;
     public TestController(UserService userService, BCryptPasswordEncoder e, AuthenticationManager authenticationManager,
                           TokenUtils tokenUtils, UserDetailsService userDetailsService){
         this.authenticationManager = authenticationManager;
         this.userService = userService;
         this.tokenUtils = tokenUtils;
         this.bCryptPasswordEncoder = e;
-        this.userDetailsService = userDetailsService;
+
     }
     @PostMapping("sign_up")
     @ResponseBody
@@ -55,9 +56,15 @@ public class TestController {
                         user.getPassword() )
         );
         SecurityContextHolder.getContext().setAuthentication(authentication);
-        UserDetails userDetails = this.userDetailsService.loadUserByUsername(user.getUsername());
+        UserDetails userDetails = this.userService.loadUserByUsername(user.getUsername());
         return this.tokenUtils.generateToken(userDetails);
     }
+    @PutMapping("change_password")
+    @ResponseBody
+    String changePassword(@RequestBody ChangePasswordDto passwordDto, Authentication authentication)  throws WrongPasswordException{
+        return userService.changePassword(authentication.getName(),passwordDto.getOldPassword(),passwordDto.getNewPassword());
+    }
+
     @GetMapping("user")
     UserProfileDto getProfile(Authentication authentication)  throws UserNotFoundException{
         return  userService.getUserProfile(authentication.getName());
