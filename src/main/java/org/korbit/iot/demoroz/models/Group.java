@@ -3,6 +3,7 @@ package org.korbit.iot.demoroz.models;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
 import javax.persistence.*;
+import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.List;
@@ -19,6 +20,7 @@ public class Group implements Serializable {
     @Column
     private String name;
     @ManyToOne(targetEntity = User.class)
+    @NotNull
     private User admin;
     @OneToMany(mappedBy = "owner",cascade = CascadeType.ALL,fetch = FetchType.LAZY, orphanRemoval = true)
     private List<Device> devices = new ArrayList<>();
@@ -26,6 +28,12 @@ public class Group implements Serializable {
     private List<User> members = new ArrayList<>();
 
     public Group() {
+    }
+
+    public Group(User admin,String name) {
+        this(name);
+        this.admin = admin;
+        members.add(admin);
     }
 
     public Group(String name) {

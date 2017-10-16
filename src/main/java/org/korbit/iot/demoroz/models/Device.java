@@ -32,6 +32,10 @@ public class Device {
     }
 
 
+    @Override
+    public String toString() {
+        return uuid.toString();
+    }
 
     @Override
     public boolean equals(Object o) {

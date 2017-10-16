@@ -71,7 +71,6 @@ public class TestController {
     }
     @GetMapping("user/{id}")
     UserDto getUser(@PathVariable  String id  ) {
-
         return userService.getUser(UUID.fromString(id));
     }
 

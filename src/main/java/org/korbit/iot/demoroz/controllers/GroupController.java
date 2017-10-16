@@ -1,5 +1,6 @@
 package org.korbit.iot.demoroz.controllers;
 
+import org.korbit.iot.demoroz.dto.GroupDto;
 import org.korbit.iot.demoroz.services.GroupService;
 import org.korbit.iot.demoroz.services.UserService;
 import org.springframework.security.core.Authentication;
@@ -23,10 +24,8 @@ public class GroupController {
 
     @PostMapping("groups")
     @ResponseBody
-    String createGroup(Authentication authentication,@RequestBody String name) {
-        groupService.createGroup(userService.getUserByUsername(authentication.getName()),name);
-
-        return "SUCCESS";
+    GroupDto createGroup(Authentication authentication, @RequestBody String name) {
+        return groupService.createGroup(userService.getUserByUsername(authentication.getName()),name);
     }
     @GetMapping("groups/{id}")
     @ResponseBody

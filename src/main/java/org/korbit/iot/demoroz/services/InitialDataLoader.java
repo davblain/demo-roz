@@ -39,7 +39,7 @@ public class InitialDataLoader implements
     @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
         if (!alreadySetup) {
-            Group group = groupDao.save(new Group(""));
+
             createRoleIfNotFound("ROLE_ADMIN");
             createRoleIfNotFound("ROLE_USER");
             Role userRole = roleRepository.findByName("ROLE_USER");
@@ -48,9 +48,8 @@ public class InitialDataLoader implements
             user.setUsername("admin");
             user.setPassword(passwordEncoder.encode("587238"));
             user.setRoles(Arrays.asList(adminRole,userRole));
-            user.setGroups(Arrays.asList(group));
             user = userRepository.save(user);
-            group.setAdmin(user);
+            Group group = groupDao.save(new Group(user,""));
             Device device = deviceDao.save(new Device());
             device.setOwner(group);
             deviceDao.save(device);
@@ -58,6 +57,7 @@ public class InitialDataLoader implements
             user.setUsername("davblain");
             user.setPassword(passwordEncoder.encode("pass"));
             user.setRoles(Arrays.asList(userRole));
+            user.setGroups(Arrays.asList(group));
             userRepository.save(user);
             alreadySetup = true;
         }
