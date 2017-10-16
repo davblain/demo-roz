@@ -1,5 +1,6 @@
 package org.korbit.iot.demoroz.services;
 
+import org.korbit.iot.demoroz.dto.DeviceDto;
 import org.korbit.iot.demoroz.dto.UserDto;
 import org.korbit.iot.demoroz.dto.UserProfileDto;
 import org.korbit.iot.demoroz.dto.UserRegisterDto;
@@ -20,6 +21,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
@@ -59,11 +61,14 @@ public class UserService  implements UserDetailsService{
     public UserProfileDto getUserProfile(String name) throws UserNotFoundException {
 
         return modelMapper.map(getUserByUsername(name),UserProfileDto.class);
-    } {}
+    }
     @Transactional
-    public Iterable<Device> getDevicesByUsername(String name) throws  UserNotFoundException{
+    public List<DeviceDto> getDevicesByUsername(String name) throws  UserNotFoundException{
      User user = getUserByUsername(name);
-     return user.getGroups().stream().flatMap( group -> group.getDevices().stream()).collect(Collectors.toList());
+     return user.getGroups().stream()
+             .flatMap( group -> group.getDevices().stream())
+             .map(d -> modelMapper.map(d,DeviceDto.class))
+             .collect(Collectors.toList());
     }
 
     public UserDto getUser(UUID uuid) {

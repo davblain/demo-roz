@@ -1,9 +1,6 @@
 package org.korbit.iot.demoroz.services;
 
-import org.korbit.iot.demoroz.dto.DeviceDto;
-import org.korbit.iot.demoroz.dto.OutEvent;
-import org.korbit.iot.demoroz.dto.ScheduleDto;
-import org.korbit.iot.demoroz.dto.ScheduleWithIdDto;
+import org.korbit.iot.demoroz.dto.*;
 import org.korbit.iot.demoroz.exceptions.DeviceNotFoundException;
 import org.korbit.iot.demoroz.models.Device;
 import org.korbit.iot.demoroz.models.Schedule;
@@ -13,6 +10,7 @@ import org.korbit.iot.demoroz.repository.UserDao;
 import org.korbit.iot.demoroz.services.interfaces.OutboundChannel;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
@@ -20,7 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 @Service
 public class DeviceService  {
@@ -40,18 +37,21 @@ public class DeviceService  {
         this.modelMapper = modelMapper;
         this.outboundChannel = channel;
     }
-    public Iterable<Device> getDevices() {
-        return deviceDao.findAll();
+    public List<DeviceDto> getDevices() {
+        return deviceDao.findAll().stream().
+                map(d -> modelMapper.map(d,DeviceDto.class)).collect(Collectors.toList());
     }
     @Transactional
-    public DeviceDto addSchedule(UUID deviceUUID, ScheduleDto schedule) {
+    public DeviceSchedulesDto addSchedule(UUID deviceUUID, ScheduleDto schedule) {
         return Optional.ofNullable(deviceDao.findOne(deviceUUID))
                 .map(d -> {
-                    Schedule sch = modelMapper.map(schedule,Schedule.class);
-                    sch.setDevice(d);
-                    sch = scheduleDao.save(sch);
-                    return  modelMapper.map(deviceDao.findOne(d.getUuid()),DeviceDto.class);
+                    d.getSchedules().add(scheduleDao.save(modelMapper.map(schedule,Schedule.class)));
+                    return  modelMapper.map(deviceDao.save(d),DeviceSchedulesDto.class);
                 }).orElseThrow(() -> new DeviceNotFoundException(deviceUUID.toString()));
+    }
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public DeviceSchedulesDto getDevice(UUID uuid) {
+        return modelMapper.map(deviceDao.findOne(uuid),DeviceSchedulesDto.class);
     }
     public List<ScheduleWithIdDto> getSchedules(UUID device_uuid) {
         return Optional.ofNullable(deviceDao.findOne(device_uuid)).map(d -> d.getSchedules().stream()

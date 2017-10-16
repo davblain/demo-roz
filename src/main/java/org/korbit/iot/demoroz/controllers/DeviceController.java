@@ -2,11 +2,11 @@ package org.korbit.iot.demoroz.controllers;
 
 import org.apache.log4j.Logger;
 import org.korbit.iot.demoroz.dto.DeviceDto;
+import org.korbit.iot.demoroz.dto.DeviceSchedulesDto;
 import org.korbit.iot.demoroz.dto.ScheduleDto;
 import org.korbit.iot.demoroz.dto.ScheduleWithIdDto;
 import org.korbit.iot.demoroz.exceptions.DeviceNotFoundException;
 import org.korbit.iot.demoroz.models.Device;
-import org.korbit.iot.demoroz.models.User;
 import org.korbit.iot.demoroz.repository.DeviceDao;
 import org.korbit.iot.demoroz.services.DeviceService;
 import org.korbit.iot.demoroz.services.ScheduleService;
@@ -44,7 +44,7 @@ public class DeviceController {
        return deviceDao.save(new Device());
     }
     @RequestMapping(value = "device", method = RequestMethod.GET)
-    public Iterable<Device> getDevices(Authentication authentication) {
+    public List<DeviceDto> getDevices(Authentication authentication) {
         if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"))){
             return deviceService.getDevices();
         }
@@ -52,10 +52,12 @@ public class DeviceController {
     }
     @PostMapping("device/{uuid}/schedule")
     @ResponseBody
-    DeviceDto addSchedule(@PathVariable String uuid, @RequestBody @Validated ScheduleDto sch,Authentication authentication) {
+    DeviceSchedulesDto addSchedule(@PathVariable String uuid, @RequestBody @Validated ScheduleDto sch, Authentication authentication) {
         if ((authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")))||
-                deviceService.checkForOwner(authentication.getName(),UUID.fromString(uuid)))
-        return deviceService.addSchedule(UUID.fromString(uuid),sch);
+                deviceService.checkForOwner(authentication.getName(),UUID.fromString(uuid))) {
+            return deviceService.addSchedule(UUID.fromString(uuid),sch);
+        }
+
         throw   new AccessDeniedException("You have not permissions for add schedule");
     }
     @GetMapping("device/{uuid}/schedule")
