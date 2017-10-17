@@ -1,6 +1,7 @@
 package org.korbit.iot.demoroz.controllers;
 
 import org.korbit.iot.demoroz.dto.GroupDto;
+import org.korbit.iot.demoroz.exceptions.UserNotFoundException;
 import org.korbit.iot.demoroz.models.User;
 import org.korbit.iot.demoroz.services.GroupService;
 import org.korbit.iot.demoroz.services.UserService;
@@ -35,12 +36,19 @@ public class GroupController {
     List<String> getDevicesId(@PathVariable(name = "id") String uuid) {
         return groupService.getDevices(UUID.fromString(uuid)).stream().map(d -> d.getUuid().toString()).collect(Collectors.toList());
     }
-    @PostMapping("group/add-member")
+    @PostMapping("group/member")
     @ResponseBody
-    String addMember(Authentication authentication,@RequestParam String username) {
+    String addMember(Authentication authentication,@RequestParam String username) throws UserNotFoundException {
        GroupDto group =  userService.getAdministratedGroup(authentication.getName());
        groupService.addMember(group.getUuid(),username);
        return "SUCCESS";
+    }
+    @DeleteMapping("group/member")
+    @ResponseBody
+    String deleteMember(Authentication authentication, @RequestParam String  username) throws UserNotFoundException {
+        GroupDto group =  userService.getAdministratedGroup(authentication.getName());
+        groupService.deleteMember(group.getUuid(),username);
+        return "SUCCESS";
     }
 
 }

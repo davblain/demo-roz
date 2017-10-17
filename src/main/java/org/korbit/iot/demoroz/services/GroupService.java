@@ -18,6 +18,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.jws.WebParam;
+import javax.validation.constraints.NotNull;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
@@ -44,7 +45,7 @@ public class GroupService {
                 .orElse( modelMapper.map(groupDao.save(new Group(user,name)),GroupDto.class));
     }
     @Transactional
-    public void addMember(UUID uuid, String username) {
+    public void addMember(@NotNull UUID uuid, @NotNull String username) {
 
         User user = Optional.ofNullable(userDao.findUserByUsername(username))
                 .orElseThrow(()-> new UserNotFoundException(username));
@@ -54,7 +55,7 @@ public class GroupService {
         groupDao.save(group);
     }
     @Transactional
-    public Device addDeviceToGroup(UUID deviceUUID,UUID groupUUID)  {
+    public Device addDeviceToGroup(@NotNull UUID deviceUUID, @NotNull UUID groupUUID)  {
         Device device = Optional.ofNullable(deviceDao.findOne(deviceUUID))
                 .orElseThrow(()-> new DeviceNotFoundException(deviceUUID.toString()));
         return Optional.ofNullable(groupDao.findOne(groupUUID)).map( g -> {
@@ -64,7 +65,7 @@ public class GroupService {
 
     }
     @Transactional
-    public List<DeviceDto> getDevices(UUID groupUUID) {
+    public List<DeviceDto> getDevices(@NotNull UUID groupUUID) {
         return  Optional.ofNullable(groupDao.findOne(groupUUID)).map(g -> deviceDao.findDevicesByOwner(g).stream()
                     .map(d -> modelMapper.map(d,DeviceDto.class))
                     .collect(Collectors.toList()))
@@ -72,11 +73,20 @@ public class GroupService {
 
     }
     @Transactional
-    public List<UserDto> getMembers(UUID uuid) {
+    public List<UserDto> getMembers(@NotNull UUID uuid) {
         return Optional.ofNullable(groupDao.getOne(uuid)).map(g -> g.getMembers().stream()
                     .map(u -> modelMapper.map(u, UserDto.class))
                     .collect(Collectors.toList()))
                 .orElseThrow(()-> new GroupNotFoundException(uuid.toString()));
+    }
+    @Transactional
+    public void deleteMember(@NotNull UUID groupUUID,@NotNull String username) {
+       Group group = Optional.ofNullable(groupDao.findOne(groupUUID))
+               .orElseThrow(()-> new GroupNotFoundException(groupUUID.toString()));
+       User user = Optional.ofNullable(userDao.findUserByUsername(username))
+               .orElseThrow(()-> new UserNotFoundException(username));
+       user.getGroups().remove(group);
+       userDao.save(user);
     }
 
 
