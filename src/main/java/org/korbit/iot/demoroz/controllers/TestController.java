@@ -70,7 +70,7 @@ public class TestController {
         return  userService.getUserProfile(authentication.getName());
     }
     @GetMapping("user/{id}")
-    UserDto getUser(@PathVariable  String id  ) {
+    UserDto getUser(@PathVariable  String id  ) throws UserNotFoundException  {
         return userService.getUser(UUID.fromString(id));
     }
 

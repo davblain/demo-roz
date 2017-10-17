@@ -1,8 +1,10 @@
 package org.korbit.iot.demoroz.controllers;
 
 import org.korbit.iot.demoroz.dto.GroupDto;
+import org.korbit.iot.demoroz.models.User;
 import org.korbit.iot.demoroz.services.GroupService;
 import org.korbit.iot.demoroz.services.UserService;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -22,18 +24,23 @@ public class GroupController {
         this.groupService = groupService;
     }
 
-    @PostMapping("groups")
+    @PostMapping("group")
     @ResponseBody
     GroupDto createGroup(Authentication authentication, @RequestBody String name) {
         return groupService.createGroup(userService.getUserByUsername(authentication.getName()),name);
     }
-    @GetMapping("groups/{id}")
+    @GetMapping("group/{id}")
+    //@PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @ResponseBody
     List<String> getDevicesId(@PathVariable(name = "id") String uuid) {
         return groupService.getDevices(UUID.fromString(uuid)).stream().map(d -> d.getUuid().toString()).collect(Collectors.toList());
     }
-
-
-
+    @PostMapping("group/add-member")
+    @ResponseBody
+    String addMember(Authentication authentication,@RequestParam String username) {
+       GroupDto group =  userService.getAdministratedGroup(authentication.getName());
+       groupService.addMember(group.getUuid(),username);
+       return "SUCCESS";
+    }
 
 }

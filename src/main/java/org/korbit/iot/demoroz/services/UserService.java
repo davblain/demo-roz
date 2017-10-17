@@ -1,9 +1,6 @@
 package org.korbit.iot.demoroz.services;
 
-import org.korbit.iot.demoroz.dto.DeviceDto;
-import org.korbit.iot.demoroz.dto.UserDto;
-import org.korbit.iot.demoroz.dto.UserProfileDto;
-import org.korbit.iot.demoroz.dto.UserRegisterDto;
+import org.korbit.iot.demoroz.dto.*;
 import org.korbit.iot.demoroz.exceptions.AlreadyExistException;
 import org.korbit.iot.demoroz.exceptions.DeviceNotFoundException;
 import org.korbit.iot.demoroz.exceptions.UserNotFoundException;
@@ -71,8 +68,15 @@ public class UserService  implements UserDetailsService{
              .collect(Collectors.toList());
     }
 
-    public UserDto getUser(UUID uuid) {
-       return  modelMapper.map(userDao.findOne(uuid), UserDto.class);
+    public UserDto getUser(UUID uuid) throws UserNotFoundException{
+        return Optional.ofNullable(userDao.findOne(uuid)).map(user -> modelMapper.map(user, UserDto.class))
+                .orElseThrow(()-> new UserNotFoundException(uuid.toString()));
+    }
+    public GroupDto getAdministratedGroup( String username) {
+        return Optional.ofNullable( userDao.findUserByUsername(username))
+                .flatMap(u -> Optional.ofNullable(groupDao.findByAdmin(u)))
+                .map(g -> modelMapper.map(g,GroupDto.class))
+                .orElseThrow(()-> new UserNotFoundException(username));
     }
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {

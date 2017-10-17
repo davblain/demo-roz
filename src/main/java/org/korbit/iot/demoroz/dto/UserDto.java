@@ -9,6 +9,5 @@ import org.korbit.iot.demoroz.models.Group;
 public class UserDto {
     String id;
     String username;
-    Group group;
 
 }
