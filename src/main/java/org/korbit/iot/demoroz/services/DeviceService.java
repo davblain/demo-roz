@@ -9,6 +9,7 @@ import org.korbit.iot.demoroz.repository.ScheduleDao;
 import org.korbit.iot.demoroz.repository.UserDao;
 import org.korbit.iot.demoroz.services.interfaces.OutboundChannel;
 import org.modelmapper.ModelMapper;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -29,7 +30,7 @@ public class DeviceService  {
     final private UserDao userDao;
     final private OutboundChannel outboundChannel;
     public DeviceService(ScheduleDao scheduleDao, DeviceDao deviceDao, PushService pushService, UserDao userDao,
-                         ModelMapper modelMapper, OutboundChannel channel) {
+                         ModelMapper modelMapper, @Qualifier("mocOutboundChannel") OutboundChannel channel) {
         this.scheduleDao = scheduleDao;
         this.userDao = userDao;
         this.deviceDao = deviceDao;

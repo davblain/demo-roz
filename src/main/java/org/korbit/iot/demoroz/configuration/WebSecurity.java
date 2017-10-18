@@ -1,5 +1,7 @@
-package org.korbit.iot.demoroz.secure;
+package org.korbit.iot.demoroz.configuration;
 
+import org.korbit.iot.demoroz.secure.AuthenticationTokenFilter;
+import org.korbit.iot.demoroz.secure.EntryPointUnauthorizedHandler;
 import org.springframework.context.annotation.Bean;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.authentication.AuthenticationManager;

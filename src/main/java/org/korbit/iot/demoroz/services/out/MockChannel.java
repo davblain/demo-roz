@@ -6,7 +6,7 @@ import org.korbit.iot.demoroz.services.MockDevice;
 import org.korbit.iot.demoroz.services.interfaces.OutboundChannel;
 import org.springframework.stereotype.Component;
 
-@Component
+@Component("mocOutboundChannel")
 public class MockChannel implements OutboundChannel {
     final private Logger logger = Logger.getLogger(MockChannel.class);
     final private MockDevice device;
