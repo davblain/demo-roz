@@ -19,7 +19,8 @@ public class Group implements Serializable {
 
     @Column
     private String name;
-    @ManyToOne(targetEntity = User.class)
+    @ManyToOne()
+    @JoinColumn(name = "admin_id")
     @NotNull
     private User admin;
     @OneToMany(mappedBy = "owner",cascade = CascadeType.ALL,fetch = FetchType.LAZY, orphanRemoval = true)
@@ -33,7 +34,7 @@ public class Group implements Serializable {
     public Group(User admin,String name) {
         this(name);
         this.admin = admin;
-        members.add(admin);
+        admin.getGroups().add(this);
     }
 
     public Group(String name) {

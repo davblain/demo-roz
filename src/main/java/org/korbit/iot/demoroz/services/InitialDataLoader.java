@@ -44,21 +44,23 @@ public class InitialDataLoader implements
             createRoleIfNotFound("ROLE_USER");
             Role userRole = roleRepository.findByName("ROLE_USER");
             Role adminRole = roleRepository.findByName("ROLE_ADMIN");
-            User user = new User();
-            user.setUsername("admin");
-            user.setPassword(passwordEncoder.encode("587238"));
-            user.setRoles(Arrays.asList(adminRole,userRole));
-            user = userRepository.save(user);
-            Group group = groupDao.save(new Group(user,""));
+            User user1 = new User();
+            user1.setUsername("admin");
+            user1.setPassword(passwordEncoder.encode("587238"));
+            user1.setRoles(Arrays.asList(adminRole,userRole));
+            user1 = userRepository.save(user1);
+            Group group =  new Group(user1,"");
             Device device = deviceDao.save(new Device());
+            group = groupDao.save(group);
             device.setOwner(group);
             deviceDao.save(device);
-            user = new User();
-            user.setUsername("davblain");
-            user.setPassword(passwordEncoder.encode("pass"));
-            user.setRoles(Arrays.asList(userRole));
-            user.setGroups(Arrays.asList(group));
-            userRepository.save(user);
+            User user2 = new User();
+            user2.setUsername("davblain");
+            user2.setPassword(passwordEncoder.encode("pass"));
+            user2.setRoles(Arrays.asList(userRole));
+            user2.getGroups().add(group);
+            userRepository.save(user2);
+
             alreadySetup = true;
         }
 

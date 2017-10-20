@@ -33,7 +33,7 @@ public class User implements Serializable,UserDetails{
                     name = "user_id", referencedColumnName = "uuid"),
             inverseJoinColumns = @JoinColumn(
                     name = "group_id", referencedColumnName = "uuid"))
-    private List<Group> groups;
+    private List<Group> groups = new ArrayList<>();
     @JsonIgnore
     @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(
@@ -42,7 +42,7 @@ public class User implements Serializable,UserDetails{
                     name = "user_id", referencedColumnName = "uuid"),
             inverseJoinColumns = @JoinColumn(
                     name = "role_id", referencedColumnName = "id"))
-    private List<Role> roles;
+    private List<Role> roles = new ArrayList<>();
     private boolean accountNonExpired, accountNonLocked, credentialsNonExpired, enabled;
     private Date lastPasswordReset;
     public User() {

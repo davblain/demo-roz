@@ -3,6 +3,7 @@ package org.korbit.iot.demoroz.handlers;
 import org.korbit.iot.demoroz.dto.OutEvent;
 import org.korbit.iot.demoroz.events.PowerChangeEvent;
 import org.korbit.iot.demoroz.events.TemperatureChangeEvent;
+import org.korbit.iot.demoroz.exceptions.DeviceNotFoundException;
 import org.korbit.iot.demoroz.models.Device;
 import org.korbit.iot.demoroz.repository.DeviceDao;
 import org.korbit.iot.demoroz.services.interfaces.OutboundChannel;
@@ -15,6 +16,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashMap;
+import java.util.Optional;
 
 @Component
 @Transactional
@@ -32,8 +34,9 @@ public class ChangeListener {
     }
 
     @EventListener
-    void handle(TemperatureChangeEvent e) {
-        Device device = deviceDao.findOne(e.getDevice_uuid());
+    void handle(TemperatureChangeEvent e) throws DeviceNotFoundException {
+        Device device = Optional.ofNullable(deviceDao.findOne(e.getDevice_uuid()))
+                .orElseThrow(()-> new DeviceNotFoundException(e.getDevice_uuid().toString()));
         device.setTemperature(e.getTemperature());
         deviceDao.save(device);
         HashMap<String,String> source = new HashMap<>();
@@ -42,8 +45,9 @@ public class ChangeListener {
 
     }
     @EventListener
-    void handle(PowerChangeEvent e) {
-        Device device = deviceDao.findOne(e.getDevice_uuid());
+    void handle(PowerChangeEvent e) throws  DeviceNotFoundException {
+        Device device = Optional.ofNullable(deviceDao.findOne(e.getDevice_uuid()))
+                .orElseThrow(()-> new DeviceNotFoundException(e.getDevice_uuid().toString()));
         device.setPowState(e.getPow_state());
         deviceDao.save(device);
         HashMap<String,String> source = new HashMap<>();

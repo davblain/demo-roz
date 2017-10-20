@@ -5,6 +5,7 @@ import org.korbit.iot.demoroz.repository.DeviceDao;
 import org.korbit.iot.demoroz.services.interfaces.OutboundChannel;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.UUID;
 
@@ -19,11 +20,11 @@ public class WebSocketOutboundChannel implements OutboundChannel{
         this.deviceDao = deviceDao;
     }
 
-
+    @Transactional
     @Override
     public void pushEvent(OutEvent event) {
         deviceDao.findOne(UUID.fromString(event.getUuid())).getOwner().getMembers()
-                .forEach(m -> simpMessagingTemplate.convertAndSendToUser(m.getUsername(),"/queue/reply",event));
+                .forEach(m -> simpMessagingTemplate.convertAndSendToUser(m.getUsername(),"/queue/private",event));
     }
 
 
