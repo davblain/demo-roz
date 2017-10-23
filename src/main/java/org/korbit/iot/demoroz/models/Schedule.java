@@ -16,7 +16,7 @@ public class Schedule {
     @GeneratedValue
     @Column(name = "uuid")
     private UUID uuid;
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne(cascade = CascadeType.ALL,optional = false)
     private Device device;
     @Column
     private LocalTime beginTime;

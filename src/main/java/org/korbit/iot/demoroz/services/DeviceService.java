@@ -46,7 +46,9 @@ public class DeviceService  {
     public DeviceSchedulesDto addSchedule(UUID deviceUUID, ScheduleDto schedule) {
         return Optional.ofNullable(deviceDao.findOne(deviceUUID))
                 .map(d -> {
-                    d.getSchedules().add(scheduleDao.save(modelMapper.map(schedule,Schedule.class)));
+                    Schedule sch = modelMapper.map(schedule,Schedule.class);
+                    sch.setDevice(d);
+                    d.getSchedules().add(scheduleDao.save(sch));
                     return  modelMapper.map(deviceDao.save(d),DeviceSchedulesDto.class);
                 }).orElseThrow(() -> new DeviceNotFoundException(deviceUUID.toString()));
     }

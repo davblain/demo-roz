@@ -9,6 +9,7 @@ import org.korbit.iot.demoroz.repository.GroupDao;
 import org.korbit.iot.demoroz.repository.RoleDao;
 import org.korbit.iot.demoroz.repository.UserDao;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.ApplicationListener;
 import org.springframework.context.event.ContextRefreshedEvent;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,8 +21,8 @@ import java.util.Arrays;
 @Component
 public class InitialDataLoader implements
         ApplicationListener<ContextRefreshedEvent> {
-
-    boolean alreadySetup = false;
+    private  @Value("${spring.jpa.hibernate.ddl-auto}") String policy;
+    @Value("${load.already-setup}") String  alreadySetup;
 
     @Autowired
     private UserDao userRepository;
@@ -38,7 +39,8 @@ public class InitialDataLoader implements
     @Override
     @Transactional
     public void onApplicationEvent(ContextRefreshedEvent event) {
-        if (!alreadySetup) {
+
+        if (!alreadySetup.equals("true")) {
 
             createRoleIfNotFound("ROLE_ADMIN");
             createRoleIfNotFound("ROLE_USER");
@@ -61,7 +63,7 @@ public class InitialDataLoader implements
             user2.getGroups().add(group);
             userRepository.save(user2);
 
-            alreadySetup = true;
+            alreadySetup = "true";
         }
 
     }
