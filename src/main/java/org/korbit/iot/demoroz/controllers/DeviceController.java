@@ -50,6 +50,16 @@ public class DeviceController {
         }
         return userService.getDevicesByUsername(authentication.getName());
     }
+
+    @RequestMapping("device/{uuid}")
+    @ResponseBody
+    DeviceDto getDevice(@PathVariable String uuid,Authentication authentication ) {
+        if ((authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN")))||
+                deviceService.checkForOwner(authentication.getName(),UUID.fromString(uuid))) {
+            return deviceService.getDeviceById(UUID.fromString(uuid));
+        }
+        throw   new AccessDeniedException("You have not permissions for get device");
+    }
     @PostMapping("device/{uuid}/schedule")
     @ResponseBody
     DeviceSchedulesDto addSchedule(@PathVariable String uuid, @RequestBody @Validated ScheduleDto sch, Authentication authentication) {

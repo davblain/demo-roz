@@ -1,10 +1,13 @@
 package org.korbit.iot.demoroz.controllers;
 
+import org.korbit.iot.demoroz.dto.DeviceDto;
 import org.korbit.iot.demoroz.dto.GroupDto;
 import org.korbit.iot.demoroz.exceptions.UserNotFoundException;
+import org.korbit.iot.demoroz.models.Device;
 import org.korbit.iot.demoroz.models.User;
 import org.korbit.iot.demoroz.services.GroupService;
 import org.korbit.iot.demoroz.services.UserService;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
@@ -33,8 +36,18 @@ public class GroupController {
     @GetMapping("group/{id}")
     //@PreAuthorize("hasAuthority('ROLE_ADMIN')")
     @ResponseBody
-    List<String> getDevicesId(@PathVariable(name = "id") String uuid) {
-        return groupService.getDevices(UUID.fromString(uuid)).stream().map(d -> d.getUuid().toString()).collect(Collectors.toList());
+    GroupDto getGroup(@PathVariable(name = "id") String uuid,Authentication authentication) {
+        if (groupService.getMembers(UUID.fromString(uuid)).stream().anyMatch( u -> u.getUsername().equals(authentication.getName()))) {
+            return groupService.getGroupById(UUID.fromString(uuid));
+        }
+        else  throw  new AccessDeniedException("You have not permissions for get group");
+    }
+    @RequestMapping(value = "group/{uuid}/devices", method = RequestMethod.GET)
+    public List<DeviceDto> getDevicesOfGroup( @PathVariable(name = "id") String uuid,Authentication authentication) {
+        if (groupService.getMembers(UUID.fromString(uuid)).stream().anyMatch( u -> u.getUsername().equals(authentication.getName()))) {
+            return groupService.getDevices(UUID.fromString(uuid));
+        }
+        else  throw  new AccessDeniedException("You have not permissions for get group");
     }
     @PostMapping("group/member")
     @ResponseBody

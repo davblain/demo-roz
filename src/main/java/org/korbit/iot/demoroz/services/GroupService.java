@@ -65,6 +65,11 @@ public class GroupService {
 
     }
     @Transactional
+    public GroupDto getGroupById(@NotNull UUID groupUuid) {
+        return Optional.ofNullable(groupDao.findOne(groupUuid)).map(g -> modelMapper.map(g,GroupDto.class))
+                .orElseThrow(() -> new GroupNotFoundException(groupUuid.toString()));
+    }
+    @Transactional
     public List<DeviceDto> getDevices(@NotNull UUID groupUUID) {
         return  Optional.ofNullable(groupDao.findOne(groupUUID)).map(g -> deviceDao.findDevicesByOwner(g).stream()
                     .map(d -> modelMapper.map(d,DeviceDto.class))

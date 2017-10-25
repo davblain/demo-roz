@@ -2,7 +2,6 @@ package org.korbit.iot.demoroz.services;
 
 import org.korbit.iot.demoroz.dto.*;
 import org.korbit.iot.demoroz.exceptions.DeviceNotFoundException;
-import org.korbit.iot.demoroz.models.Device;
 import org.korbit.iot.demoroz.models.Schedule;
 import org.korbit.iot.demoroz.repository.DeviceDao;
 import org.korbit.iot.demoroz.repository.ScheduleDao;
@@ -53,15 +52,24 @@ public class DeviceService  {
                 }).orElseThrow(() -> new DeviceNotFoundException(deviceUUID.toString()));
     }
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public DeviceSchedulesDto getDevice(UUID uuid) {
+    public DeviceSchedulesDto getSchedulesOfDevice(UUID uuid) {
         return modelMapper.map(deviceDao.findOne(uuid),DeviceSchedulesDto.class);
     }
+    @Transactional
+    public DeviceDto getDeviceById( UUID uuid) {
+        return Optional.ofNullable(deviceDao.findOne(uuid)).map(d -> modelMapper.map(d,DeviceDto.class))
+                .orElseThrow(()->new DeviceNotFoundException(uuid.toString())
+        );
+    }
+    @Transactional
     public List<ScheduleWithIdDto> getSchedules(UUID device_uuid) {
         return Optional.ofNullable(deviceDao.findOne(device_uuid)).map(d -> d.getSchedules().stream()
         .map(s -> modelMapper.map(s,ScheduleWithIdDto.class))
                         .collect(Collectors.toList())
         ).orElseThrow(()-> new DeviceNotFoundException(device_uuid.toString()));
     }
+    //TODO:NEED TO OPTIMIZE BY CUSTOM QUERY (FETCHING groups and devices every time is bad)
+    @Transactional
     public boolean checkForOwner(String username,UUID uuid) {
         return userDao.findUserByUsername(username).getGroups().stream()
                 .flatMap( g -> g.getDevices().stream())
